@@ -184,3 +184,5 @@ unix:!mac {
     icon512.files += data/512x512/minitunes.png
 }
 mac|win32:include(local/local.pri)
+
+FORMS +=

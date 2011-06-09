@@ -24,6 +24,8 @@
 #include "local/mac/mac_startup.h"
 #endif
 
+
+
 /*
 class CentralWidget : public QWidget {
 
@@ -62,6 +64,7 @@ MainWindow::MainWindow() {
     createMenus();
     createToolBars();
     createStatusBar();
+    createTrayIcon();
 
     // views mechanism
     history = new QStack<QWidget*>();
@@ -247,6 +250,17 @@ void MainWindow::createActions() {
     actions->insert("chooseFolder", chooseFolderAct);
     connect(chooseFolderAct, SIGNAL(triggered()), SLOT(showChooseFolderView()));
 
+    minimizeToTrayAct = new QAction(tr("&Minimize to tray"),this);
+    minimizeToTrayAct->setStatusTip(tr("Minimize application to tray"));
+    actions->insert("minimizeToTray",minimizeToTrayAct);
+    connect(minimizeToTrayAct,SIGNAL(triggered()),SLOT(minimizeToTray()));
+
+
+    showMainWindowAct = new QAction(tr("&Show Minitunes"),this);
+    showMainWindowAct->setStatusTip(tr("Show Minitunes window"));
+    connect(showMainWindowAct,SIGNAL(triggered()),SLOT(showMainWindow()));
+
+
     siteAct = new QAction(tr("&Website"), this);
     siteAct->setShortcut(QKeySequence::HelpContents);
     siteAct->setStatusTip(tr("%1 on the Web").arg(Constants::APP_NAME));
@@ -359,6 +373,9 @@ void MainWindow::createMenus() {
 
     fileMenu = menuBar()->addMenu(tr("&Application"));
     fileMenu->addAction(chooseFolderAct);
+
+    fileMenu->addAction(minimizeToTrayAct);
+
 #ifndef APP_MAC
     fileMenu->addSeparator();
     fileMenu->addAction(quitAct);
@@ -399,7 +416,16 @@ void MainWindow::createMenus() {
     helpMenu->addAction(donateAct);
 #endif
     helpMenu->addAction(aboutAct);
+
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(showMainWindowAct);
+    trayIconMenu->addAction(playAct);
+    trayIconMenu->addAction(skipForwardAct);
+    trayIconMenu->addAction(skipBackwardAct);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAct);
 }
+
 
 void MainWindow::createToolBars() {
 
@@ -638,8 +664,17 @@ void MainWindow::quit() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    quit();
-    QMainWindow::closeEvent(event);
+    if(sysTrayIcon->isVisible()){
+        event->ignore();
+         hide();
+
+    }else{
+        quit();
+        QMainWindow::closeEvent(event);
+    }
+
+    writeSettings();
+
 }
 
 void MainWindow::showChooseFolderView() {
@@ -1036,6 +1071,7 @@ void MainWindow::loadPlaylist() {
     PlaylistModel* playlistModel = mediaView->getPlaylistModel();
     if (playlistModel == 0)
         return;
+
     // qDebug() << "Loading playlist: " << plsPath;
     QFile plsFile(plsPath);
     QTextStream plsStream(&plsFile);
@@ -1044,3 +1080,29 @@ void MainWindow::loadPlaylist() {
     else
         qDebug() << "Cannot open file" << plsPath;
 }
+
+
+void MainWindow::minimizeToTray(){
+    if(QSystemTrayIcon::isSystemTrayAvailable()){
+        hide();
+        sysTrayIcon->show();
+        writeSettings();
+        minimizeToTrayAct->setEnabled(false);
+
+    }else {
+        statusBar()->showMessage(tr("System tray icon is NOT AVAILABLE!"));
+    }
+}
+
+void MainWindow::createTrayIcon(){
+    sysTrayIcon = new QSystemTrayIcon(this);
+    sysTrayIcon->setIcon(QIcon(":/images/app.png"));
+    sysTrayIcon->setContextMenu(trayIconMenu);
+}
+
+void MainWindow::showMainWindow(){
+    minimizeToTrayAct->setEnabled(false);
+    readSettings();
+    showNormal();
+}
+

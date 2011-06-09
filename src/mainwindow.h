@@ -7,6 +7,8 @@
 #include <phonon/mediaobject.h>
 #include <phonon/seekslider.h>
 
+#include <QSystemTrayIcon>
+
 class MediaView;
 class CollectionScannerView;
 class ContextualView;
@@ -22,9 +24,11 @@ public:
     MainWindow();
     ~MainWindow();
 
+
 public slots:
     void showMediaView();
     void showChooseFolderView();
+    void minimizeToTray();
     void toggleContextualView();
     void updateContextualView(Track *track);
 
@@ -67,6 +71,8 @@ private slots:
     void incrementalScanProgress(int percent);
     void incrementalScanFinished();
 
+    void showMainWindow();
+
 private:
     void showView(QWidget*);
     void createActions();
@@ -81,6 +87,10 @@ private:
     QString playlistPath();
     void savePlaylist();
     void loadPlaylist();
+    void createTrayIcon();
+
+    QSystemTrayIcon *sysTrayIcon;
+    QMenu *trayIconMenu;
 
     // view mechanism
     QStackedWidget *views;
@@ -102,6 +112,8 @@ private:
     QAction *aboutAct;
     QAction *searchFocusAct;
     QAction *chooseFolderAct;
+    QAction *minimizeToTrayAct;
+    QAction *showMainWindowAct;
 
     // media actions
     QAction *skipBackwardAct;
