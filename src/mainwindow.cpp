@@ -424,6 +424,7 @@ void MainWindow::createMenus() {
     trayIconMenu->addAction(skipBackwardAct);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAct);
+
 }
 
 
@@ -1084,9 +1085,11 @@ void MainWindow::loadPlaylist() {
 
 void MainWindow::minimizeToTray(){
     if(QSystemTrayIcon::isSystemTrayAvailable()){
-        hide();
-        sysTrayIcon->show();
         writeSettings();
+        hide();
+        sysTrayIcon->setToolTip("Minitunes");
+        sysTrayIcon->show();
+
         minimizeToTrayAct->setEnabled(false);
 
     }else {
@@ -1098,6 +1101,7 @@ void MainWindow::createTrayIcon(){
     sysTrayIcon = new QSystemTrayIcon(this);
     sysTrayIcon->setIcon(QIcon(":/images/app.png"));
     sysTrayIcon->setContextMenu(trayIconMenu);
+    connect(sysTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 }
 
 void MainWindow::showMainWindow(){
@@ -1106,3 +1110,15 @@ void MainWindow::showMainWindow(){
     showNormal();
 }
 
+void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason){
+    switch(reason){
+        case QSystemTrayIcon::Trigger:
+
+        case QSystemTrayIcon::DoubleClick:
+             showMainWindow();
+        break;
+
+        default:
+        ;
+    }
+}

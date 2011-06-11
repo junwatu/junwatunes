@@ -24,7 +24,6 @@ public:
     MainWindow();
     ~MainWindow();
 
-
 public slots:
     void showMediaView();
     void showChooseFolderView();
@@ -72,6 +71,7 @@ private slots:
     void incrementalScanFinished();
 
     void showMainWindow();
+    void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
 private:
     void showView(QWidget*);
