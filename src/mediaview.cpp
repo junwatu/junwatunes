@@ -135,7 +135,7 @@ void MediaView::activeRowChanged(int row, bool manual) {
 
     // go!
     QString path = track->getAbsolutePath();
-    // qDebug() << "Playing" << path;
+    //qDebug() << "Playing" << path;
     mediaObject->setCurrentSource(path);
     mediaObject->play();
 

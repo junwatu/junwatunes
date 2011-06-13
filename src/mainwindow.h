@@ -89,6 +89,8 @@ private:
     void loadPlaylist();
     void createTrayIcon();
 
+    Track *track;
+
     QSystemTrayIcon *sysTrayIcon;
     QMenu *trayIconMenu;
 

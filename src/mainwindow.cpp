@@ -118,8 +118,19 @@ MainWindow::~MainWindow() {
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     if (event->type() == QEvent::ToolTip) {
-        // kill tooltips
-        return true;
+
+        //tested on Linux only
+        if(obj == sysTrayIcon){
+            //qDebug() << "TODO : how to disable other tooltips except for system tray icon?!";
+            track = mediaView->getActiveTrack();
+                if(track){
+                    sysTrayIcon->setToolTip(track->getArtist()->getName()+" - "+track->getTitle());
+                }
+        }
+
+        //to kill tooltip set to true
+        return false;
+
     } else if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // qDebug() << keyEvent;
@@ -714,7 +725,8 @@ void MainWindow::toggleContextualView() {
         // stopAct->setShortcut(QKeySequence(Qt::Key_Escape));
 
     } else {
-        Track *track = mediaView->getActiveTrack();
+        track = mediaView->getActiveTrack();
+
         if (track) {
             contextualView->setTrack(track);
             showView(contextualView);
@@ -1102,6 +1114,7 @@ void MainWindow::createTrayIcon(){
     sysTrayIcon->setIcon(QIcon(":/images/app.png"));
     sysTrayIcon->setContextMenu(trayIconMenu);
     connect(sysTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+    sysTrayIcon->installEventFilter(this);
 }
 
 void MainWindow::showMainWindow(){
