@@ -34,6 +34,7 @@ public slots:
 protected:
     void closeEvent(QCloseEvent *);
     bool eventFilter(QObject *obj, QEvent *event);
+    void changeEvent(QEvent *event);
 
 private slots:
     void crossfadeViews(QWidget *oldWidget, QWidget *newWidget);

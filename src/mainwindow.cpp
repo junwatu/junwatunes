@@ -261,8 +261,8 @@ void MainWindow::createActions() {
     actions->insert("chooseFolder", chooseFolderAct);
     connect(chooseFolderAct, SIGNAL(triggered()), SLOT(showChooseFolderView()));
 
-    minimizeToTrayAct = new QAction(tr("&Minimize to tray"),this);
-    minimizeToTrayAct->setStatusTip(tr("Minimize application to tray"));
+    minimizeToTrayAct = new QAction(tr("&Show tray icon"),this);
+    minimizeToTrayAct->setStatusTip(tr("Show tray icon"));
     actions->insert("minimizeToTray",minimizeToTrayAct);
     connect(minimizeToTrayAct,SIGNAL(triggered()),SLOT(minimizeToTray()));
 
@@ -1098,11 +1098,14 @@ void MainWindow::loadPlaylist() {
 void MainWindow::minimizeToTray(){
     if(QSystemTrayIcon::isSystemTrayAvailable()){
         writeSettings();
-        hide();
-        sysTrayIcon->setToolTip("Minitunes");
-        sysTrayIcon->show();
+        //disable this if you dont want to minimize the window
+        //hide();
 
-        minimizeToTrayAct->setEnabled(false);
+        if(!sysTrayIcon->isVisible()){
+            sysTrayIcon->setToolTip("Minitunes");
+            sysTrayIcon->show();
+            minimizeToTrayAct->setEnabled(false);
+        }
 
     }else {
         statusBar()->showMessage(tr("System tray icon is NOT AVAILABLE!"));
@@ -1126,12 +1129,25 @@ void MainWindow::showMainWindow(){
 void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason){
     switch(reason){
         case QSystemTrayIcon::Trigger:
-
+            showMainWindow();
+        break;
         case QSystemTrayIcon::DoubleClick:
-             showMainWindow();
+            minimizeToTray();
         break;
 
         default:
         ;
     }
+}
+
+void MainWindow::changeEvent(QEvent *event){
+
+	if(event->type() == QEvent::WindowStateChange){
+		if(isMinimized()){
+			if(sysTrayIcon->isVisible()){
+				writeSettings();
+                                //hide();
+			}
+		}
+	}
 }
